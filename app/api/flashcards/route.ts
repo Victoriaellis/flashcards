@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { db } from "../../../src/db/client";
+import { db } from "../../../src/db";
 import { categories, flashcards } from "@/src/db/schema";
 import { eq } from "drizzle-orm";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const category = searchParams.get("category");
+  const categoryId = searchParams.get("category");
 
   try {
     const query = db
@@ -19,8 +19,8 @@ export async function GET(request: Request) {
       .from(flashcards)
       .leftJoin(categories, eq(flashcards.categoryId, categories.id));
 
-    const filtered = category
-      ? query.where(eq(categories.id, category))
+    const filtered = categoryId
+      ? query.where(eq(categories.name, categoryId))
       : query;
 
     const results = await filtered;

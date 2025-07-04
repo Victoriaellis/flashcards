@@ -5,6 +5,5 @@ export const db = drizzlePostgres(
   "postgres://robynellison@localhost:5432/flashcards-italian",
   {
     schema,
-    // casing: "snake_case",
   }
 );

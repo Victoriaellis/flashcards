@@ -1,10 +1,22 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { CategoryType } from "../types";
 
 export const ConfigureFlashCardForm = () => {
   const [newFrontValue, setNewFrontValue] = useState("");
   const [newBackValue, setNewBackValue] = useState("");
-  const [newCategoryId, setNewCategoryId] = useState("");
+  const [categories, setCategories] = useState<CategoryType[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const res = await fetch(`/api/categories`);
+      const data = await res.json();
+      setCategories(data);
+    };
+
+    fetchCategories();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -15,7 +27,7 @@ export const ConfigureFlashCardForm = () => {
       body: JSON.stringify({
         front: newFrontValue,
         back: newBackValue,
-        categoryId: newCategoryId ? parseInt(newCategoryId) : null,
+        categoryId: selectedCategoryId ? parseInt(selectedCategoryId) : null,
       }),
     });
 
@@ -25,7 +37,7 @@ export const ConfigureFlashCardForm = () => {
       alert("✅ Flashcard created!");
       setNewFrontValue("");
       setNewBackValue("");
-      setNewCategoryId("");
+      setSelectedCategoryId("");
     } else {
       alert("❌ Error: " + result.error);
     }
@@ -52,13 +64,15 @@ export const ConfigureFlashCardForm = () => {
       <label>Category</label>
       <select
         name="category"
-        value={newCategoryId}
-        onChange={(e) => setNewCategoryId(e.target.value)}
+        value={selectedCategoryId}
+        onChange={(e) => setSelectedCategoryId(e.target.value)}
         className="border border-gray-300 rounded p-1 h-10"
       >
-        <option value="">-- Select Category --</option>
-        <option value="1">Italian Verbs</option>
-        <option value="2">Food Vocabulary</option>
+        {categories.map((cat) => (
+          <option key={cat.id} value={cat.id}>
+            {cat.name}
+          </option>
+        ))}
       </select>
 
       <button

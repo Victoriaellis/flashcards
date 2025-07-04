@@ -1,15 +1,11 @@
 import { NextResponse } from "next/server";
-import { db } from "../../../src/db/client";
+import { db } from "../../../src/db";
 import { flashcards } from "@/src/db/schema";
 
 export async function POST(request: Request) {
   try {
-    console.log(request, "reqq");
     const data = await request.json();
 
-    console.log(data);
-
-    // do some validation here
     if (!data.front || !data.back) {
       return NextResponse.json(
         { error: "Front and back words are required" },
@@ -17,7 +13,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create new flashcard
     const newFlashcard = await db
       .insert(flashcards)
       .values({
