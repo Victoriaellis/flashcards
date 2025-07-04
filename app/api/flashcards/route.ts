@@ -3,9 +3,12 @@ import { db } from "../../../src/db/client";
 import { categories, flashcards } from "@/src/db/schema";
 import { eq } from "drizzle-orm";
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const category = searchParams.get("category");
+
   try {
-    const allFlashcards = await db
+    const query = db
       .select({
         id: flashcards.id,
         front: flashcards.front,
@@ -15,7 +18,13 @@ export async function GET() {
       })
       .from(flashcards)
       .leftJoin(categories, eq(flashcards.categoryId, categories.id));
-    return NextResponse.json(allFlashcards);
+
+    const filtered = category
+      ? query.where(eq(categories.id, category))
+      : query;
+
+    const results = await filtered;
+    return NextResponse.json(results);
   } catch (error) {
     console.error("Error fetching flashcards:", error);
     return NextResponse.json({ error }, { status: 500 });

@@ -8,12 +8,15 @@ import { CategoryType, FlashcardType } from "../types";
 export default function DashboardPage() {
   const [flashcards, setFlashcards] = useState<FlashcardType[]>([]);
   const [categories, setCategories] = useState<CategoryType[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchFlashcards = async () => {
       try {
-        const res = await fetch("/api/flashcards");
+        const res = await fetch(
+          `/api/flashcards?category=${selectedCategoryId}`
+        );
         const data = await res.json();
         setFlashcards(data);
       } catch (error) {
@@ -23,6 +26,10 @@ export default function DashboardPage() {
       }
     };
 
+    fetchFlashcards();
+  }, [selectedCategoryId]);
+
+  useEffect(() => {
     const fetchCategories = async () => {
       try {
         const res = await fetch("/api/categories");
@@ -31,21 +38,10 @@ export default function DashboardPage() {
         console.log(data);
       } catch {
         console.error("failed to fetch categories");
-      } finally {
-        // need to change this
-        setLoading(false);
       }
     };
-
-    fetchFlashcards();
     fetchCategories();
   }, []);
-
-  const handleSetCategories = (e: any) => {
-    const newCat = e.target.value;
-    console.log(newCat);
-    categories.filter((cat) => cat.id == newCat);
-  };
 
   if (loading) return <p>Loading...</p>;
 
@@ -53,9 +49,10 @@ export default function DashboardPage() {
     <div className="w-full px-10">
       <h1 className="text-3xl font-bold text-center">Flashcards Dashboard</h1>
       <select
-        onChange={handleSetCategories}
+        onChange={(e) => setSelectedCategoryId(e.target.value)}
         className="my-5 text-xl p-1 border border-gray-300 rounded-lg"
       >
+        <option value="">All categories</option>
         {categories.map((category) => (
           <option key={category.id} value={category.id}>
             {category.name}
