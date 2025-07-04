@@ -67,6 +67,7 @@ export default function DashboardPage() {
             front={card.front}
             back={card.back}
             categoryName={card.categoryName}
+            categoryId={card.categoryId}
           />
         ))}
         <Link className="pt-2 text-blue-600" href="/new">
